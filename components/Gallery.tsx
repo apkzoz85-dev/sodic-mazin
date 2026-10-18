@@ -2,16 +2,15 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { GALLERY } from "@/lib/site";
+import type { Project } from "@/lib/types";
 import { LeadButton } from "./ContactLinks";
 import { IconClose } from "./Icons";
 
-const CATS = ["الكل", "المجتمع", "الواجهات", "الداخلي"];
-
-export default function Gallery() {
+export default function Gallery({ items }: { items: Project["gallery"] }) {
+  const CATS = ["الكل", ...Array.from(new Set(items.map((g) => g.cat)))];
   const [cat, setCat] = useState("الكل");
   const [open, setOpen] = useState<number | null>(null);
-  const list = cat === "الكل" ? GALLERY : GALLERY.filter((g) => g.cat === cat);
+  const list = cat === "الكل" ? items : items.filter((g) => g.cat === cat);
 
   useEffect(() => {
     if (open === null) return;

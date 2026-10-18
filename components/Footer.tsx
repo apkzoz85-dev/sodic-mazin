@@ -1,19 +1,39 @@
 "use client";
 
+import Link from "next/link";
 import { SITE } from "@/lib/site";
 import { Logo } from "./Header";
 import { CallButton, WaButton } from "./ContactLinks";
 
 const openModal = (id: "privacy" | "disclaimer") => window.dispatchEvent(new CustomEvent("open-legal", { detail: id }));
 
-export default function Footer() {
+export const PROJECT_LINKS = [
+  { href: "/", label: "سوديك إيست — هليوبوليس الجديدة" },
+  { href: "/the-estates", label: "ذا استيتس ريزيدنسز — نيو زايد" },
+];
+
+export default function Footer({ logo, blurb, current }: { logo: { name: string; nameEn: string; letter: string }; blurb: string; current: string }) {
   return (
     <footer className="bg-ink-deep pb-28 pt-14 text-white/75 md:pb-10">
       <div className="container-x">
-        <div className="grid gap-8 border-b border-white/10 pb-10 md:grid-cols-3">
+        <div className="grid gap-8 border-b border-white/10 pb-10 md:grid-cols-4">
           <div>
-            <Logo light />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed">كمبوند متكامل على 655 فدان في هليوبوليس الجديدة — شقق ودوبلكس بخطة سداد حتى 10 سنين.</p>
+            <Logo {...logo} light />
+            <p className="mt-4 max-w-xs text-sm leading-relaxed">{blurb}</p>
+          </div>
+          <div>
+            <p className="font-semibold text-white">مشروعات سوديك معانا</p>
+            <ul className="mt-4 space-y-2 text-sm">
+              {PROJECT_LINKS.map((l) => (
+                <li key={l.href}>
+                  {l.href === current ? (
+                    <span className="text-gold-soft">{l.label}</span>
+                  ) : (
+                    <Link href={l.href} className="hover:text-gold-soft">{l.label}</Link>
+                  )}
+                </li>
+              ))}
+            </ul>
           </div>
           <div>
             <p className="font-semibold text-white">استفسارات المبيعات</p>

@@ -1,20 +1,22 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PAYMENT_PLANS, UNITS, fmt } from "@/lib/site";
+import { fmt } from "@/lib/site";
+import type { Plan, Unit } from "@/lib/types";
 import { LeadButton, WaButton } from "./ContactLinks";
+import { useProject } from "./ProjectContext";
 
-export default function Calculator() {
-  const [unitId, setUnitId] = useState(UNITS[0].id);
-  const [planId, setPlanId] = useState(PAYMENT_PLANS[0].id);
-  const unit = UNITS.find((u) => u.id === unitId)!;
-  const plan = PAYMENT_PLANS.find((p) => p.id === planId)!;
+export default function Calculator({ units, plans, note }: { units: Unit[]; plans: Plan[]; note: string }) {
+  const p = useProject();
+  const [unitId, setUnitId] = useState(units[0].id);
+  const [planId, setPlanId] = useState(plans[0].id);
+  const unit = units.find((u) => u.id === unitId)!;
+  const plan = plans.find((x) => x.id === planId)!;
 
   const r = useMemo(() => {
     const down = unit.price * plan.down;
-    const rest = unit.price - down;
     const quarters = plan.years * 4;
-    const quarterly = rest / quarters;
+    const quarterly = (unit.price - down) / quarters;
     return { down, quarterly, monthly: quarterly / 3, quarters };
   }, [unit, plan]);
 
@@ -24,9 +26,7 @@ export default function Calculator() {
         <div className="reveal">
           <p className="eyebrow">05 / حاسبة الأقساط</p>
           <h2 className="h2 mt-3">احسب قسطك في ثواني</h2>
-          <p className="mt-4 leading-relaxed text-muted">
-            اختار الوحدة ونظام السداد وشوف المقدم والقسط الربع سنوي التقريبي على سعر البداية. الأرقام النهائية بتتحدد حسب الوحدة والدور والفيو.
-          </p>
+          <p className="mt-4 leading-relaxed text-muted">اختار الوحدة ونظام السداد وشوف المقدم والقسط الربع سنوي التقريبي. {note}</p>
         </div>
 
         <div className="reveal rounded-3xl bg-white p-6 ring-1 ring-line sm:p-8">
@@ -34,20 +34,20 @@ export default function Calculator() {
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium text-ink/80">الوحدة</span>
               <select className="field" value={unitId} onChange={(e) => setUnitId(e.target.value)}>
-                {UNITS.map((u) => <option key={u.id} value={u.id}>{u.title} — {u.area}</option>)}
+                {units.map((u) => <option key={u.id} value={u.id}>{u.title} — {u.area}</option>)}
               </select>
             </label>
             <div>
               <span className="mb-1.5 block text-sm font-medium text-ink/80">نظام السداد</span>
-              <div className="grid grid-cols-2 gap-2">
-                {PAYMENT_PLANS.map((p) => (
+              <div className={`grid gap-2 ${plans.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
+                {plans.map((x) => (
                   <button
-                    key={p.id}
+                    key={x.id}
                     type="button"
-                    onClick={() => setPlanId(p.id)}
-                    className={`rounded-xl border px-3 py-3 text-sm font-semibold transition ${planId === p.id ? "border-ink bg-ink text-white" : "border-line text-ink hover:border-ink/40"}`}
+                    onClick={() => setPlanId(x.id)}
+                    className={`rounded-xl border px-3 py-3 text-sm font-semibold transition ${planId === x.id ? "border-ink bg-ink text-white" : "border-line text-ink hover:border-ink/40"}`}
                   >
-                    {p.down * 100}% مقدم
+                    {plans.length > 1 ? `${x.down * 100}% مقدم` : x.label}
                   </button>
                 ))}
               </div>
@@ -56,7 +56,7 @@ export default function Calculator() {
 
           <dl className="mt-6 grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl bg-cream p-4">
-              <dt className="text-xs text-muted">سعر البداية</dt>
+              <dt className="text-xs text-muted">السعر التقريبي</dt>
               <dd className="mt-1 font-display text-lg font-bold text-ink"><span className="num">{fmt(unit.price)}</span></dd>
             </div>
             <div className="rounded-2xl bg-cream p-4">
@@ -71,11 +71,11 @@ export default function Calculator() {
           <p className="mt-3 text-sm text-muted">
             ≈ <span className="num font-semibold text-ink">{fmt(r.monthly)}</span> ج.م شهريًا · {r.quarters} قسط على {plan.years} سنين
           </p>
-          <p className="mt-1 text-xs text-muted">حساب تقريبي بأقساط متساوية للتوضيح فقط — {plan.note}.</p>
+          <p className="mt-1 text-xs text-muted">حساب تقريبي للتوضيح فقط — {plan.note}.</p>
 
           <div className="mt-6 grid gap-2 sm:grid-cols-2">
             <LeadButton source="calculator" unit={unit.title} title={`خطة سداد ${unit.title}`}>خُد الحسبة الرسمية</LeadButton>
-            <WaButton msg={`مرحبًا، عايز تفاصيل ${unit.title} في سوديك إيست بنظام ${plan.label}.`} className="btn btn-ghost text-wa" />
+            <WaButton msg={`مرحبًا، عايز تفاصيل ${unit.title} في ${p.name} بنظام ${plan.label}.`} className="btn btn-ghost text-wa" />
           </div>
         </div>
       </div>

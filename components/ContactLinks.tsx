@@ -3,10 +3,12 @@
 import { SITE, waLink } from "@/lib/site";
 import { track, openLead } from "@/lib/track";
 import { IconPhone, IconWa } from "./Icons";
+import { useProject } from "./ProjectContext";
 
 export function WaButton({ msg, className = "btn btn-wa", children }: { msg?: string; className?: string; children?: React.ReactNode }) {
+  const p = useProject();
   return (
-    <a href={waLink(msg)} target="_blank" rel="noopener noreferrer" onClick={() => track("whatsapp")} className={className}>
+    <a href={waLink(msg ?? p.waMsg)} target="_blank" rel="noopener noreferrer" onClick={() => track("whatsapp")} className={className}>
       <IconWa className="h-5 w-5" />
       {children ?? "واتساب"}
     </a>

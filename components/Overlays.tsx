@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { SITE, waLink } from "@/lib/site";
 import { track, openLead } from "@/lib/track";
 import LeadForm from "./LeadForm";
+import { useProject } from "./ProjectContext";
 import { IconClose, IconPhone, IconWa } from "./Icons";
 
 /* ---------------- safe storage ---------------- */
@@ -40,6 +41,7 @@ function Modal({ onClose, children, label }: { onClose: () => void; children: Re
 
 /* ---------------- lead modal (opened from any CTA) ---------------- */
 function LeadModal() {
+  const p = useProject();
   const [state, setState] = useState<{ source: string; unit?: string; title?: string } | null>(null);
   useEffect(() => {
     const h = (e: Event) => setState((e as CustomEvent).detail);
@@ -50,7 +52,7 @@ function LeadModal() {
   if (!state) return null;
   return (
     <Modal onClose={close} label="طلب الأسعار">
-      <p className="text-xs font-semibold text-gold">سوديك إيست · هليوبوليس الجديدة</p>
+      <p className="text-xs font-semibold text-gold">{p.name}</p>
       <p className="mt-1 font-display text-xl font-bold text-ink">{state.title || "احصل على آخر الأسعار"}</p>
       <p className="mb-5 mt-1 text-sm text-muted">سيب رقمك ومستشار هيكلمك خلال دقائق في مواعيد العمل.</p>
       <LeadForm source={`modal-${state.source}`} unit={state.unit} showUnit={!state.unit} />
@@ -60,16 +62,17 @@ function LeadModal() {
 
 /* ---------------- timed / scroll popup ---------------- */
 function LeadPopup() {
+  const p = useProject();
   const [show, setShow] = useState(false);
   const fired = useRef(false);
 
   useEffect(() => {
-    if (store.get("se_popup", "session")) return;
+    if (store.get(`popup_${p.slug}`, "session")) return;
     const fire = () => {
       if (fired.current) return;
       if (document.querySelector('[role="dialog"]')) return; // don't stack on another modal
       fired.current = true;
-      store.set("se_popup", "1", "session");
+      store.set(`popup_${p.slug}`, "1", "session");
       setShow(true);
       cleanup();
     };
@@ -81,15 +84,15 @@ function LeadPopup() {
     window.addEventListener("scroll", onScroll, { passive: true });
     const cleanup = () => { window.clearTimeout(t); window.removeEventListener("scroll", onScroll); };
     return cleanup;
-  }, []);
+  }, [p.slug]);
 
   const close = useCallback(() => setShow(false), []);
   if (!show) return null;
   return (
     <Modal onClose={close} label="عرض خاص">
-      <span className="inline-block rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold">مقدم 1.5% فقط</span>
-      <p className="mt-3 font-display text-2xl font-bold text-ink">ابدأ بـ 100 ألف تقريبًا وقسّط على 10 سنين</p>
-      <p className="mb-5 mt-2 text-sm text-muted">احجز شقتك في المرحلة الجديدة من سوديك إيست قبل تحريك الأسعار. خُد قائمة الأسعار والمتاح الآن.</p>
+      <span className="inline-block rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold">{p.popup.badge}</span>
+      <p className="mt-3 font-display text-2xl font-bold text-ink">{p.popup.title}</p>
+      <p className="mb-5 mt-2 text-sm text-muted">{p.popup.text}</p>
       <LeadForm source="popup" showUnit submitLabel="ابعتلي الأسعار والمتاح" />
     </Modal>
   );
@@ -110,7 +113,7 @@ function LegalModal() {
       {doc === "privacy" ? (
         <div className="space-y-3 text-sm leading-relaxed text-ink/80">
           <p className="font-display text-xl font-bold text-ink">سياسة الخصوصية</p>
-          <p>تُدار هذه الصفحة بواسطة {SITE.agent}، وكيل مبيعات عقاري معتمد. نجمع فقط البيانات التي تُدخلها بنفسك (الاسم، رقم الهاتف، البريد الإلكتروني الاختياري، والوحدة المهتم بها) بغرض التواصل معك بخصوص مشروع سوديك إيست.</p>
+          <p>تُدار هذه الصفحة بواسطة {SITE.agent}، وكيل مبيعات عقاري معتمد. نجمع فقط البيانات التي تُدخلها بنفسك (الاسم، رقم الهاتف، البريد الإلكتروني الاختياري، والوحدة المهتم بها) بغرض التواصل معك بخصوص المشروع الذي تستفسر عنه.</p>
           <p>لا نبيع بياناتك لأي طرف ثالث. قد نشارك بياناتك مع المطوّر (سوديك) لغرض إتمام الحجز فقط وبعد موافقتك.</p>
           <p>نستخدم ملفات تعريف الارتباط (Cookies) وأدوات قياس مثل Google Ads وGoogle Analytics لقياس أداء الإعلانات وتحسين تجربة الصفحة.</p>
           <p>لطلب حذف بياناتك أو تعديلها راسلنا على: <span dir="ltr">{SITE.email}</span></p>
@@ -149,13 +152,14 @@ function CookieConsent() {
 
 /* ---------------- mobile bottom bar + floating desktop WA ---------------- */
 function ContactBars() {
+  const p = useProject();
   return (
     <>
       <div className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-3 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
         <a href={`tel:${SITE.phoneTel}`} onClick={() => track("call")} className="flex flex-col items-center gap-1 py-2.5 text-xs font-semibold text-ink">
           <IconPhone /> اتصل
         </a>
-        <a href={waLink()} target="_blank" rel="noopener noreferrer" onClick={() => track("whatsapp")} className="flex flex-col items-center gap-1 py-2.5 text-xs font-semibold text-wa">
+        <a href={waLink(p.waMsg)} target="_blank" rel="noopener noreferrer" onClick={() => track("whatsapp")} className="flex flex-col items-center gap-1 py-2.5 text-xs font-semibold text-wa">
           <IconWa /> واتساب
         </a>
         <button onClick={() => openLead({ source: "mobile-bar" })} className="m-1.5 rounded-xl bg-gold text-sm font-bold text-white">
@@ -164,7 +168,7 @@ function ContactBars() {
       </div>
 
       <a
-        href={waLink()}
+        href={waLink(p.waMsg)}
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => track("whatsapp")}

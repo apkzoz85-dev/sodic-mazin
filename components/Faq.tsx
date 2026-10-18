@@ -1,7 +1,7 @@
-import { FAQ } from "@/lib/site";
+import type { Project } from "@/lib/types";
 import { WaButton } from "./ContactLinks";
 
-export default function Faq() {
+export default function Faq({ items }: { items: Project["faq"] }) {
   return (
     <section id="faq" className="bg-cream py-20 md:py-28">
       <div className="container-x grid gap-10 lg:grid-cols-[.8fr_1.2fr]">
@@ -12,7 +12,7 @@ export default function Faq() {
           <WaButton className="btn btn-wa mt-6">اسألنا على واتساب</WaButton>
         </div>
         <div className="reveal divide-y divide-line rounded-3xl bg-white ring-1 ring-line">
-          {FAQ.map((f, i) => (
+          {items.map((f, i) => (
             <details key={f.q} className="group px-6 py-1" open={i === 0}>
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-semibold text-ink [&::-webkit-details-marker]:hidden">
                 {f.q}

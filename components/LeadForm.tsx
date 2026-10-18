@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { SITE, UNITS } from "@/lib/site";
+import { SITE } from "@/lib/site";
 import { track } from "@/lib/track";
+import { thankYouPath, useProject } from "./ProjectContext";
 
 type Props = {
   source: string;
@@ -22,6 +23,7 @@ const validPhone = (v: string) => {
 
 export default function LeadForm({ source, unit, submitLabel = "اطلب الأسعار", showEmail = false, showUnit = false, dark = false }: Props) {
   const router = useRouter();
+  const project = useProject();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -38,8 +40,9 @@ export default function LeadForm({ source, unit, submitLabel = "اطلب الأ�
     setLoading(true);
     const payload = {
       access_key: SITE.web3formsKey,
-      subject: `ليد جديد — سوديك إيست (${source})`,
-      from_name: "Sodic East Landing",
+      subject: `ليد جديد — ${project.name} (${source})`,
+      from_name: `${project.name} Landing`,
+      project: project.name,
       name,
       phone: normalizePhone(phone),
       email: String(fd.get("email") || ""),
@@ -61,7 +64,7 @@ export default function LeadForm({ source, unit, submitLabel = "اطلب الأ�
         if (!data.success) throw new Error(data.message || "failed");
       }
       track("form");
-      router.push("/thank-you");
+      router.push(thankYouPath(project.path));
     } catch {
       setError("حصلت مشكلة في الإرسال. جرّب تاني أو كلمنا واتساب.");
       setLoading(false);
@@ -97,8 +100,8 @@ export default function LeadForm({ source, unit, submitLabel = "اطلب الأ�
           <label className={`mb-1.5 block text-sm font-medium ${label}`} htmlFor={`unit-${source}`}>الوحدة المهتم بيها</label>
           <select id={`unit-${source}`} name="unit" className="field" defaultValue={unit || ""}>
             <option value="">لسه بحدد</option>
-            {UNITS.map((u) => (
-              <option key={u.id} value={u.title}>{u.title} — {u.area}</option>
+            {project.units.map((u) => (
+              <option key={u.title} value={u.title}>{u.title} — {u.area}</option>
             ))}
           </select>
         </div>

@@ -80,7 +80,7 @@ body {
 .btn-primary { background: var(--color-ink); color: #fff; }
 .btn-primary:hover { background: var(--color-ink-deep); box-shadow: 0 10px 24px -12px rgb(19 42 56 / .6); }
 .btn-gold { background: var(--color-gold); color: #fff; }
-.btn-gold:hover { background: #a6834a; }
+.btn-gold:hover { background: color-mix(in srgb, var(--color-gold) 86%, black); }
 .btn-wa { background: var(--color-wa); color: #fff; }
 .btn-wa:hover { background: #188d47; }
 .btn-ghost { border: 1px solid currentColor; }

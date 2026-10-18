@@ -1,4 +1,4 @@
-# سوديك إيست — Landing Page
+# سوديك — Landing Pages (سوديك إيست + ذا استيتس ريزيدنسز)
 
 Next.js 16.4.2 · React 19.3 · Tailwind CSS 4.3 · TypeScript · Web3Forms · Static build
 
@@ -10,21 +10,33 @@ npm run dev      # http://localhost:3000
 npm run build    # كل الصفحات Static (○)
 ```
 
-## قبل الرفع — عدّل `lib/site.ts` فقط
+## الصفحات
+
+| Route | المشروع | الداتا |
+|---|---|---|
+| `/` | سوديك إيست — هليوبوليس الجديدة | `lib/projects/sodic-east.ts` |
+| `/the-estates` | ذا استيتس ريزيدنسز — نيو زايد | `lib/projects/the-estates.ts` |
+
+كل صفحة ليها thank-you خاص بيها (`/thank-you` و `/the-estates/thank-you`) — اعمل conversion منفصل لكل واحدة لو حابب.
+مشروع جديد = ملف داتا جديد في `lib/projects/` + فولدر في `app/` فيه `page.tsx` بنفس شكل `app/the-estates/page.tsx`، وضيف لينكه في `PROJECT_LINKS` في `components/Footer.tsx` وفي `app/sitemap.ts`.
+
+## الإعدادات المشتركة — `lib/site.ts`
 
 | الحقل | المطلوب |
 |---|---|
 | `url` | الدومين الفعلي |
-| `phoneDisplay` / `phoneTel` / `whatsapp` | أرقام المشروع (حاليًا 01001050018) |
+| `phoneDisplay` / `phoneTel` / `whatsapp` | رقم واحد للمكالمات والواتساب في كل الصفحات (حاليًا 01277707799) |
 | `web3formsKey` | Access key من web3forms.com — من غيره الفورم بيعمل محاكاة نجاح بس |
 | `gtagId` + `conversions` | AW-ID والـ labels (form / whatsapp / call) — الـ gtag مش بيتحمّل طول ما فيه XXXX |
-| `UNITS` | الأسعار والمساحات — الحاسبة بتقرا `price` من هنا |
+
 
 ## الصور — `public/images/`
 
 صور رسمية: `hero` (بار حمام السباحة) · `overview` (البحيرة وقت الغروب) · `lagoon` · `water-garden` · `building-k` · `building-z-beach` · `living-room` · `location-map` · `brochure` (مقصوصة من building-z) · `og.jpg`.
 
-ربط الصور بالوحدات والمعرض في `lib/site.ts` (`UNITS[].image` و `GALLERY`). تاون هاوس وفيلا ميدوز من غير صورة، وبيظهروا بكارت بألوان البراند. لما تجيلك صورهم ضيف `image: "/images/xxx.webp"` في الوحدة.
+صور ذا استيتس في `public/images/estates/` (مقصوصة من بروشور سوديك الرسمي، ومعاها 5 مخططات حقيقية للشقق).
+
+الأسعار والوحدات والصور لكل مشروع في ملف الداتا بتاعه (`units[].image`, `gallery`). الوحدات اللي من غير صورة (ميدوز، وفيلات ذا استيتس) بتظهر بكارت بألوان البراند — لما تجيلك صورها ضيف `image`. `priceMode: "avg"` بيخلي الكروت تقول "متوسط السعر" بدل "يبدأ من".
 
 ## اللي في الصفحة
 
