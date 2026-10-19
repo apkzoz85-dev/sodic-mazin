@@ -3,18 +3,18 @@
 // ===================================================================
 
 export const SITE = {
-  url: "https://www.sodic-east.com", // ← غيّرها للدومين الفعلي
+  url: "https://www.sodicprojects.org", // ← غيّرها للدومين الفعلي
   agent: "Grandeur Spaces",
-  agentSite: "https://grandeur-spaces.com",
+  agentSite: "",
 
   // رقم واحد للمكالمات والواتساب في كل الصفحات
   phoneDisplay: "0127 770 7799",
   phoneTel: "+201277707799",
   whatsapp: "201277707799",
-  email: "leads@grandeur-spaces.com",
+  email: "leads@sodicprojects.org",
 
   // Web3Forms — https://web3forms.com
-  web3formsKey: "YOUR_WEB3FORMS_ACCESS_KEY",
+  web3formsKey: "f7122ce5-41a0-4d80-bc5c-bf59960f5992",
 
   // Google Ads — ضع الـ ID والـ labels
   gtagId: "AW-XXXXXXXXXX",
